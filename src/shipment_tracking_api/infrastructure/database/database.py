@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from delivery_tracking_api.config import settings
+from shipment_tracking_api.config import settings
 
 engine = create_async_engine(str(settings.DATABASE_URL))
 

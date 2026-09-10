@@ -1,5 +1,5 @@
 [project]
-name = "delivery-tracking-api"
+name = "shipment-tracking-api"
 version = "0.1.0"
 description = "Practice FastAPI project"
 readme = "README.md"
@@ -26,4 +26,4 @@ dev = [
 ]
 
 [tool.fastapi]
-entrypoint = "src.delivery_tracking_api.main:app"
+entrypoint = "src.shipment_tracking_api.main:app"

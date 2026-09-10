@@ -6,10 +6,10 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-from delivery_tracking_api.config import settings
-from delivery_tracking_api.infrastructure.database.database import Base
-from delivery_tracking_api.models.shipment_model import ShipmentModel
-from delivery_tracking_api.models.user_model import UserModel
+from shipment_tracking_api.config import settings
+from shipment_tracking_api.infrastructure.database.database import Base
+from shipment_tracking_api.models.shipment_model import ShipmentModel
+from shipment_tracking_api.models.user_model import UserModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

@@ -1,11 +1,11 @@
 from sqlalchemy import Column, String
 from sqlalchemy.orm import Mapped, mapped_column
 
-from delivery_tracking_api.infrastructure.database.annotations import (
+from shipment_tracking_api.infrastructure.database.annotations import (
     created_at,
     intpk,
 )
-from delivery_tracking_api.infrastructure.database.database import Base
+from shipment_tracking_api.infrastructure.database.database import Base
 
 
 class UserModel(Base):
