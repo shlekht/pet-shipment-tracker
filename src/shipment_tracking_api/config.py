@@ -15,11 +15,16 @@ class Settings(BaseSettings):
     JWT_ALG: str
 
     REDIS_URL: str
+    BROKER_REDIS_URL: str
 
     RMQ_URL: str
 
     MODE: Literal["DEV", "TEST", "PROD"]
-    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+    
+    POSTGRES_USER: str
+    POSTGRES_PASSWORD: str
+    POSTGRES_DB: str
+
 
     # DATABASE URL
     DATABASE_URL: PostgresDsn | None = None

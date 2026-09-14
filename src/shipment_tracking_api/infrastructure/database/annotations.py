@@ -6,15 +6,16 @@ from sqlalchemy.orm import mapped_column
 
 intpk = Annotated[int, mapped_column(primary_key=True)]
 
-created_at = Annotated[
+CreatedAt = Annotated[
     datetime.datetime,
-    mapped_column(server_default=text("TIMEZONE('utc', now())")),
+    mapped_column(server_default=text("TIMEZONE('utc', now())"), nullable=False),
 ]
 
-updated_at = Annotated[
+UpdatedAt = Annotated[
     datetime.datetime,
     mapped_column(
         server_default=text("TIMEZONE('utc', now())"),
         onupdate=func.timezone("utc", func.now()),
+        nullable=False
     ),
 ]
