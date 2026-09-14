@@ -1,8 +1,8 @@
-from sqlalchemy import Column, String
+from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from shipment_tracking_api.infrastructure.database.annotations import (
-    created_at,
+    CreatedAt,
     intpk,
 )
 from shipment_tracking_api.infrastructure.database.database import Base
@@ -16,5 +16,5 @@ class UserModel(Base):
         String(255), unique=True, nullable=False, index=True
     )
     username: Mapped[str] = mapped_column(nullable=False)
-    hashed_password = Column(String, nullable=False)
-    created_at: Mapped[created_at] = mapped_column(nullable=False)
+    hashed_password: Mapped[str] = mapped_column(nullable=False)
+    created_at: Mapped[CreatedAt]

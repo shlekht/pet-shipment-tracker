@@ -1,0 +1,10 @@
+#!/bin/bash
+
+if [[ "${1}" == "celery" ]]; then
+    celery --app=app.tasks.celery:celery worker -l INFO # TODO
+elif [[ "${1}" == "flower" ]]; then
+    celery --app=app.tasks.celery:celery flower # TODO
+else
+    echo "Unknown command: ${1}"
+    exit 1
+fi
