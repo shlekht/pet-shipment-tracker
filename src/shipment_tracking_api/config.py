@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     REDIS_URL: str
     BROKER_REDIS_URL: str
+    CACHE_TTL_SECONDS: int = 300 
 
     RMQ_URL: str
 
