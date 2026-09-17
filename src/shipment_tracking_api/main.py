@@ -3,6 +3,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from shipment_tracking_api.config import settings
+from shipment_tracking_api.errors_handling.general_handler import (
+    register_errors_handlers,
+)
 from shipment_tracking_api.infrastructure.cache.redis import RedisCacheBackend
 from shipment_tracking_api.infrastructure.message_broker.rabbitmq import RabbitMQ
 
@@ -31,7 +34,7 @@ async def lifespan(app: FastAPI):
     await broker.close()
 
 app = FastAPI(lifespan=lifespan)
-
+register_errors_handlers(app)
 
 
 @app.get("/")
