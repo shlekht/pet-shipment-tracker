@@ -13,6 +13,7 @@ class Settings(BaseSettings):
 
     JWT_SECRET_KEY: str
     JWT_ALG: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
     REDIS_URL: str
     BROKER_REDIS_URL: str

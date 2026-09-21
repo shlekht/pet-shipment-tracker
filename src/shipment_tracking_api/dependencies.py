@@ -1,11 +1,14 @@
 from collections.abc import AsyncGenerator
+from typing import Annotated
 
-from fastapi import Request
+from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from shipment_tracking_api.infrastructure.cache.redis import RedisCacheBackend
 from shipment_tracking_api.infrastructure.database.database import async_session_maker
 from shipment_tracking_api.infrastructure.message_broker.rabbitmq import RabbitMQ
+from shipment_tracking_api.repositories.user_repository import UserRepository
+from shipment_tracking_api.services.auth_service import AuthService
 
 
 async def get_redis(request: Request) -> RedisCacheBackend:
@@ -26,4 +29,27 @@ async def get_rabbit(request: Request) -> RabbitMQ:
 
 async def get_session() -> AsyncGenerator[AsyncSession]:
     async with async_session_maker() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
+
+SessionDependency = Annotated[AsyncSession, Depends(get_session)]
+
+
+async def get_user_repository(
+    session: SessionDependency,
+) -> UserRepository:
+    return UserRepository(session)
+
+
+UserRepositoryDependency = Annotated[UserRepository, Depends(get_user_repository)]
+
+
+async def get_auth_service(
+    repository: UserRepositoryDependency,
+) -> AuthService:
+    return AuthService(repository)

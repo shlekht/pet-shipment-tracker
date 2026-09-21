@@ -8,7 +8,7 @@ from shipment_tracking_api.infrastructure.database.annotations import (
 from shipment_tracking_api.infrastructure.database.database import Base
 
 
-class UserModel(Base):
+class User(Base):
     __tablename__ = "users"
 
     id: Mapped[intpk]
