@@ -18,7 +18,7 @@ class Status(enum.Enum):
     delivered = "delivered"
 
 
-class ShipmentModel(Base):
+class Shipment(Base):
     __tablename__ = "shipments"
 
     id: Mapped[intpk]

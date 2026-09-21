@@ -7,8 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from shipment_tracking_api.infrastructure.cache.redis import RedisCacheBackend
 from shipment_tracking_api.infrastructure.database.database import async_session_maker
 from shipment_tracking_api.infrastructure.message_broker.rabbitmq import RabbitMQ
+from shipment_tracking_api.repositories.shipment_repository import ShipmentRepository
 from shipment_tracking_api.repositories.user_repository import UserRepository
 from shipment_tracking_api.services.auth_service import AuthService
+from shipment_tracking_api.services.shipment_service import ShipmentService
 
 
 async def get_redis(request: Request) -> RedisCacheBackend:
@@ -53,3 +55,20 @@ async def get_auth_service(
     repository: UserRepositoryDependency,
 ) -> AuthService:
     return AuthService(repository)
+
+
+async def get_shipment_repository(
+    session: SessionDependency,
+) -> ShipmentRepository:
+    return ShipmentRepository(session)
+
+
+ShipmentRepositoryDependency = Annotated[
+    ShipmentRepository, Depends(get_shipment_repository)
+]
+
+
+async def get_shipment_service(
+    repository: ShipmentRepositoryDependency,
+) -> ShipmentService:
+    return ShipmentService(repository)

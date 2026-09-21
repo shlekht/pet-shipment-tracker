@@ -9,7 +9,7 @@ from shipment_tracking_api.errors_handling.auth_errors import (
 )
 from shipment_tracking_api.models.user_model import User
 from shipment_tracking_api.repositories.user_repository import UserRepository
-from shipment_tracking_api.schemas.user import UserRegister
+from shipment_tracking_api.schemas.user import UserRegisterSchema
 
 
 class AuthService:
@@ -28,7 +28,7 @@ class AuthService:
         user = await self.authenticate(email, password)
         return create_access_token({"sub": str(user.id)})
 
-    async def register(self, data: UserRegister) -> User:
+    async def register(self, data: UserRegisterSchema) -> User:
         existing = await self.user_repo.get_by_email(data.email)
         if existing:
             raise UserAlreadyExistsError()
