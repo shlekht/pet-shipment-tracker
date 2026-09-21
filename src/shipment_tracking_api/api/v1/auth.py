@@ -3,7 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, Response, status
 
 from shipment_tracking_api.dependencies import get_auth_service
-from shipment_tracking_api.schemas.user import UserLogin, UserRead, UserRegister
+from shipment_tracking_api.schemas.user import (
+    UserLoginSchema,
+    UserReadSchema,
+    UserRegisterSchema,
+)
 from shipment_tracking_api.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -11,19 +15,19 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register_user(
-    data: UserRegister,
+    data: UserRegisterSchema,
     service: Annotated[AuthService, Depends(get_auth_service)],
-) -> UserRead:
+) -> UserReadSchema:
     user = await service.register(data)
 
-    # FastAPI в рантайме преобразует тип с ORM объекта User на UserRead, из-за этого типизатор выдаёт предупреждение.
+    # FastAPI в рантайме преобразует тип с ORM объекта User на UserReadSchema, из-за этого типизатор выдаёт предупреждение.
     # Чтобы всё было аккуратно можно делать вот так:
-    return UserRead.model_validate(user)
+    return UserReadSchema.model_validate(user)
 
 
 @router.post("/login", status_code=status.HTTP_204_NO_CONTENT)
 async def login(
-    data: UserLogin,
+    data: UserLoginSchema,
     response: Response,
     service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> None:
