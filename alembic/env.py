@@ -9,7 +9,7 @@ from alembic import context
 from shipment_tracking_api.config import settings
 from shipment_tracking_api.infrastructure.database.database import Base
 from shipment_tracking_api.models.shipment_model import ShipmentModel
-from shipment_tracking_api.models.user_model import UserModel
+from shipment_tracking_api.models.user_model import User
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
