@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 from shipment_tracking_api.config import settings
 from shipment_tracking_api.infrastructure.database.database import Base
-from shipment_tracking_api.models.shipment_model import ShipmentModel
+from shipment_tracking_api.models.shipment_model import Shipment
 from shipment_tracking_api.models.user_model import User
 
 # this is the Alembic Config object, which provides

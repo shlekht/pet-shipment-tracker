@@ -1,5 +1,4 @@
 from collections.abc import AsyncGenerator
-import datetime
 from typing import Annotated
 
 from fastapi import Depends, Request
@@ -11,6 +10,7 @@ from shipment_tracking_api.errors_handling.auth_errors import AuthenticationErro
 from shipment_tracking_api.infrastructure.cache.redis import RedisCacheBackend
 from shipment_tracking_api.infrastructure.database.database import async_session_maker
 from shipment_tracking_api.infrastructure.message_broker.rabbitmq import RabbitMQ
+from shipment_tracking_api.models.user_model import User
 from shipment_tracking_api.repositories.shipment_repository import ShipmentRepository
 from shipment_tracking_api.repositories.user_repository import UserRepository
 from shipment_tracking_api.services.auth_service import AuthService
@@ -84,7 +84,7 @@ async def get_shipment_service(
 # ------------------------------------------------------------------------------------
 
 
-async def get_current_user(request: Request, user_repository: UserRepositoryDependency):
+async def get_current_user(request: Request, user_repository: UserRepositoryDependency) -> User:
     token = request.cookies.get("shipment_token")
     if not token:
         raise AuthenticationError

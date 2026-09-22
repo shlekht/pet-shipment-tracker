@@ -26,4 +26,4 @@ class Shipment(Base):
     status: Mapped[Status] = mapped_column(nullable=False)
     tracking_number: Mapped[int] = mapped_column(unique=True, nullable=False)
     created_at: Mapped[CreatedAt]
-    updated_at_at: Mapped[UpdatedAt]
+    updated_at: Mapped[UpdatedAt]
