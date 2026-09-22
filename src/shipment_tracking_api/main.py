@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from shipment_tracking_api.api.v1.auth import router as auth_router
+from shipment_tracking_api.api.v1.shipments import router as shipments_router
 from shipment_tracking_api.config import settings
 from shipment_tracking_api.errors_handling.general_handler import (
     register_errors_handlers,
@@ -38,6 +39,7 @@ app = FastAPI(lifespan=lifespan)
 register_errors_handlers(app)
 
 app.include_router(auth_router)
+app.include_router(shipments_router)
 
 @app.get("/")
 async def root():

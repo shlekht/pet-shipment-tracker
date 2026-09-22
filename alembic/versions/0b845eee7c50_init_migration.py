@@ -36,7 +36,7 @@ def upgrade() -> None:
     sa.Column('status', sa.Enum('unknown', 'assembling', 'shipping', 'delivered', name='status'), nullable=False),
     sa.Column('tracking_number', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
-    sa.Column('updated_at_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), server_default=sa.text("TIMEZONE('utc', now())"), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('tracking_number')
