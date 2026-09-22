@@ -1,6 +1,10 @@
 import json
+from typing import Any
 
 from redis.asyncio import Redis
+
+# For typing:
+JSONSerializable = dict[str, Any] | list[Any] | str | int | float | bool | None
 
 
 # Basic class with Redis methods
@@ -22,7 +26,7 @@ class RedisCacheBackend:
     async def ping(self) -> bool:
         return await self._redis.ping()
 
-    async def set(self, key: str, value: dict) -> None:
+    async def set(self, key: str, value: JSONSerializable) -> None:
         await self._redis.set(key, json.dumps(value), ex=self.cache_ttl_seconds)
 
     async def get(self, key: str) -> dict | None:

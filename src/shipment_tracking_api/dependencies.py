@@ -24,6 +24,7 @@ async def get_redis(request: Request) -> RedisCacheBackend:
         raise RuntimeError("Redis client is not initialized.")
     return redis_backend
 
+RedisDependency = Annotated[RedisCacheBackend, Depends(get_redis)]
 
 async def get_rabbit(request: Request) -> RabbitMQ:
     """It takes our lifespan-initialized rabbit client from app.state"""
@@ -77,8 +78,9 @@ ShipmentRepositoryDependency = Annotated[
 
 async def get_shipment_service(
     repository: ShipmentRepositoryDependency,
+    cache: RedisDependency
 ) -> ShipmentService:
-    return ShipmentService(repository)
+    return ShipmentService(repository, cache)
 
 
 # ------------------------------------------------------------------------------------
