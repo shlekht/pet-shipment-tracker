@@ -11,6 +11,7 @@ from shipment_tracking_api.repositories.shipment_repository import ShipmentRepos
 from shipment_tracking_api.schemas.shipment import (
     ShipmentCreateSchema,
     ShipmentReadSchema,
+    ShipmentStatusUpdateSchema,
 )
 
 
@@ -32,7 +33,9 @@ class ShipmentService:
         shipments_read = [
             ShipmentReadSchema.model_validate(shipment) for shipment in shipments
         ]
-        shipments_for_cache = [shipment.model_dump(mode="json") for shipment in shipments_read]
+        shipments_for_cache = [
+            shipment.model_dump(mode="json") for shipment in shipments_read
+        ]
         await self.cache.set(cache_key, shipments_for_cache)
         return shipments_read
 
@@ -92,3 +95,12 @@ class ShipmentService:
         await self.cache.delete(CacheKeys.shipment(shipment_id))
 
         await self.shipment_repo.delete(shipment_id)
+
+    async def update_shipment_status_by_id(
+        self, shipment_id: int, data: ShipmentStatusUpdateSchema
+    ) -> ShipmentReadSchema:
+        shipment = await self.shipment_repo.get_by_id(shipment_id)
+        if shipment is None:
+            raise ShipmentNotFoundError(shipment_id)
+        shipment.status = data.status
+        return ShipmentReadSchema.model_validate(shipment)
