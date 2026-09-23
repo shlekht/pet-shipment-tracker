@@ -17,3 +17,6 @@ class ShipmentReadSchema(BaseModel):
     tracking_number: int
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+class ShipmentStatusUpdateSchema(BaseModel):
+    status: Status

@@ -3,10 +3,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status
 
 from shipment_tracking_api.dependencies import get_current_user, get_shipment_service
+from shipment_tracking_api.infrastructure.tasks.tasks import (
+    send_notification_about_status,
+)
 from shipment_tracking_api.models.user_model import User
 from shipment_tracking_api.schemas.shipment import (
     ShipmentCreateSchema,
     ShipmentReadSchema,
+    ShipmentStatusUpdateSchema,
 )
 from shipment_tracking_api.services.shipment_service import ShipmentService
 
@@ -50,4 +54,17 @@ async def delete_shipment_by_id(
 ) -> None:
     await service.delete_shipment_by_id(
         user_id=current_user.id, shipment_id=shipment_id
+    )
+
+
+@router.patch("/{shipment_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def update_shipment_status(
+    shipment_id: int,
+    data: ShipmentStatusUpdateSchema,
+    current_user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[ShipmentService, Depends(get_shipment_service)],
+) -> None:
+    shipment_data = await service.update_shipment_status_by_id(shipment_id, data)
+    send_notification_about_status.delay( # type: ignore
+        shipment_data.model_dump(mode="json"), str(current_user.email)
     )
