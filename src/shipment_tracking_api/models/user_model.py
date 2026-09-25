@@ -6,7 +6,6 @@ from shipment_tracking_api.infrastructure.database.annotations import (
     intpk,
 )
 from shipment_tracking_api.infrastructure.database.database import Base
-from shipment_tracking_api.models.shipment_model import Shipment
 
 
 class User(Base):

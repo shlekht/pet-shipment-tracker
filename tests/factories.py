@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import factory
 from factory import fuzzy
 
@@ -24,3 +26,5 @@ class ShipmentFactory(factory.Factory):
     user = factory.SubFactory(UserFactory)
     status = fuzzy.FuzzyChoice(Status)
     tracking_number = factory.Sequence(lambda n: 100000 + n)
+    created_at = factory.LazyFunction(datetime.now)
+    updated_at = factory.LazyFunction(datetime.now)

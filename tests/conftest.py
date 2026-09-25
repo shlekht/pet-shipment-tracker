@@ -1,5 +1,6 @@
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
+from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from shipment_tracking_api.config import settings
@@ -8,10 +9,10 @@ from shipment_tracking_api.infrastructure.database.database import Base
 from shipment_tracking_api.main import app as fastapi_app
 from tests.factories import UserFactory
 
-test_engine = create_async_engine(str(settings.TEST_DATABASE_URL))
+test_engine = create_async_engine(str(settings.TEST_DATABASE_URL), poolclass=NullPool,)
 
 
-@pytest_asyncio.fixture(scope="session", autouse=True)
+@pytest_asyncio.fixture(scope="session")
 async def setup_db():
     assert settings.TEST_DATABASE_URL != settings.DATABASE_URL
     async with test_engine.begin() as conn:
