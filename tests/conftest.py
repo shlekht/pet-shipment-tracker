@@ -22,22 +22,6 @@ async def setup_db():
     await test_engine.dispose()
 
 
-@pytest_asyncio.fixture
-async def authenticated_async_client(async_client, user):
-    response = await async_client.post(
-        "/auth/login",
-        json={
-            "email": user.email,
-            "password": "test123",
-        },
-    )
-
-    assert response.status_code == 200
-    assert async_client.cookies.get("booking_access_token")
-
-    return async_client
-
-
 @pytest_asyncio.fixture(scope="function")
 async def db_session():
     async with test_engine.connect() as conn:
@@ -48,15 +32,13 @@ async def db_session():
         await trans.rollback()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
 async def async_client(db_session):
     async def override_get_db():
         yield db_session
 
     fastapi_app.dependency_overrides[get_session] = override_get_db
-
     transport = ASGITransport(app=fastapi_app)
-
     try:
         async with AsyncClient(
             transport=transport,
@@ -67,13 +49,25 @@ async def async_client(db_session):
         fastapi_app.dependency_overrides.clear()
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="function")
+async def authenticated_async_client(async_client, user):
+    response = await async_client.post(
+        "/auth/login",
+        json={
+            "email": user.email,
+            "password": "test123",
+        },
+    )
+    assert response.status_code == 200
+    assert async_client.cookies.get("shipment_token")
+    return async_client
+
+
+@pytest_asyncio.fixture(scope="function")
 async def user(db_session):
     user = UserFactory.build(
         email="test@example.com",
     )
-
     db_session.add(user)
     await db_session.flush()
-
     return user
