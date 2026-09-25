@@ -1,11 +1,12 @@
 from sqlalchemy import String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from shipment_tracking_api.infrastructure.database.annotations import (
     CreatedAt,
     intpk,
 )
 from shipment_tracking_api.infrastructure.database.database import Base
+from shipment_tracking_api.models.shipment_model import Shipment
 
 
 class User(Base):
@@ -18,3 +19,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(nullable=False)
     hashed_password: Mapped[str] = mapped_column(nullable=False)
     created_at: Mapped[CreatedAt]
+
+    shipments: Mapped[list["Shipment"]] = relationship(
+        back_populates="user"
+    )

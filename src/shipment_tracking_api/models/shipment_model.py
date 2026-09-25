@@ -1,7 +1,7 @@
 import enum
 
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from shipment_tracking_api.infrastructure.database.annotations import (
     CreatedAt,
@@ -9,6 +9,7 @@ from shipment_tracking_api.infrastructure.database.annotations import (
     intpk,
 )
 from shipment_tracking_api.infrastructure.database.database import Base
+from shipment_tracking_api.models.user_model import User
 
 
 class Status(enum.Enum):
@@ -27,3 +28,7 @@ class Shipment(Base):
     tracking_number: Mapped[int] = mapped_column(unique=True, nullable=False)
     created_at: Mapped[CreatedAt]
     updated_at: Mapped[UpdatedAt]
+
+    user: Mapped["User"] = relationship(
+        back_populates="shipments"
+    )

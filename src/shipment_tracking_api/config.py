@@ -43,6 +43,22 @@ class Settings(BaseSettings):
             )
         return self
 
+
+    
+    TEST_DATABASE_URL: PostgresDsn | None = None
+    @model_validator(mode="after")
+    def assemble_test_db_connection(self) -> Settings:
+        if not self.DATABASE_URL:
+            self.DATABASE_URL = PostgresDsn.build(
+                scheme="postgresql+asyncpg",  
+                username=self.DB_USER,
+                password=self.DB_PASSWORD,
+                host=self.DB_HOST,
+                port=self.DB_PORT,
+                path="test_db"
+            )
+        return self
+
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
