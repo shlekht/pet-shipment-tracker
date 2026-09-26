@@ -2,14 +2,18 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-
+import redis.asyncio as redis
 from shipment_tracking_api.config import settings
-from shipment_tracking_api.dependencies import get_session
+from shipment_tracking_api.dependencies import get_redis, get_session
+from shipment_tracking_api.infrastructure.cache.redis import RedisCacheBackend
 from shipment_tracking_api.infrastructure.database.database import Base
 from shipment_tracking_api.main import app as fastapi_app
 from tests.factories import UserFactory
 
-test_engine = create_async_engine(str(settings.TEST_DATABASE_URL), poolclass=NullPool,)
+test_engine = create_async_engine(
+    str(settings.TEST_DATABASE_URL),
+    poolclass=NullPool,
+)
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -24,7 +28,7 @@ async def setup_db():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def db_session():
+async def db_session(setup_db):
     async with test_engine.connect() as conn:
         trans = await conn.begin()
         session = AsyncSession(bind=conn, expire_on_commit=False)
@@ -34,11 +38,24 @@ async def db_session():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def async_client(db_session):
+async def redis_client():
+    client = RedisCacheBackend.from_url(settings.TEST_REDIS_URL, cache_ttl_seconds=60)
+    await client.ping()
+    yield client
+    await client.flushdb()
+    await client.close()
+
+
+@pytest_asyncio.fixture(scope="function")
+async def async_client(db_session, redis_client):
     async def override_get_db():
         yield db_session
 
+    async def override_get_redis():
+        return redis_client
+
     fastapi_app.dependency_overrides[get_session] = override_get_db
+    fastapi_app.dependency_overrides[get_redis] = override_get_redis
     transport = ASGITransport(app=fastapi_app)
     try:
         async with AsyncClient(
@@ -59,7 +76,7 @@ async def authenticated_async_client(async_client, user):
             "password": "test123",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 204
     assert async_client.cookies.get("shipment_token")
     return async_client
 
