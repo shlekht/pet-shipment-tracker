@@ -23,9 +23,9 @@ class AuthService:
     async def authenticate(self, email: str, password: str) -> User:
         user = await self.user_repo.get_by_email(email)
         if not user:
-            raise AuthenticationError()
+            raise AuthenticationError(email)
         if not verify_password(password, user.hashed_password):
-            raise AuthenticationError()
+            raise AuthenticationError(email)
         logger.info(
             "User authenticated",
             extra={

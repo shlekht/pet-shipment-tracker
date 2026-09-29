@@ -7,8 +7,9 @@ logger = logging.getLogger(__name__)
 
 
 class AuthenticationError(Exception):
-    def __init__(self, message: str = "Invalid email or password"):
+    def __init__(self, email: str | None = None, message: str = "Invalid email or password"):
         self.message = message
+        self.email = email
 
 
 class UserAlreadyExistsError(Exception):
@@ -19,11 +20,10 @@ class UserAlreadyExistsError(Exception):
 async def handle_authentication_error(
     request: Request, exc: AuthenticationError
 ) -> JSONResponse:
-    body = await request.json()
     logger.info(  # ожидаемое поведение, поэтому info, а не warning/error
-        "Auth Error: %s email=%s",
+        "Auth Error: %s, email=%s",
         request.url.path,
-        body.get("email"),
+        exc.email
     )
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
