@@ -1,5 +1,9 @@
+import logging
+
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 
 class AuthenticationError(Exception):
@@ -12,11 +16,15 @@ class UserAlreadyExistsError(Exception):
         self.message = message
 
 
-
 async def handle_authentication_error(
     request: Request, exc: AuthenticationError
 ) -> JSONResponse:
-    # logging here later
+    body = await request.json()
+    logger.info(  # ожидаемое поведение, поэтому info, а не warning/error
+        "Auth Error: %s email=%s",
+        request.url.path,
+        body.get("email"),
+    )
     return JSONResponse(
         status_code=status.HTTP_401_UNAUTHORIZED,
         content={"message": exc.message},
@@ -27,7 +35,11 @@ async def handle_authentication_error(
 async def handle_user_already_exists_error(
     request: Request, exc: UserAlreadyExistsError
 ) -> JSONResponse:
-    # logging here later
+    body = await request.json()
+    logger.info(  # ожидаемое поведение, поэтому info, а не warning/error
+        "User already exists email=%s",
+        body.get("email")
+    )
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
         content={"message": exc.message},

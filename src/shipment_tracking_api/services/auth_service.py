@@ -1,3 +1,5 @@
+import logging
+
 from shipment_tracking_api.auth import (
     create_access_token,
     get_password_hash,
@@ -11,6 +13,8 @@ from shipment_tracking_api.models.user_model import User
 from shipment_tracking_api.repositories.user_repository import UserRepository
 from shipment_tracking_api.schemas.user import UserRegisterSchema
 
+logger = logging.getLogger(__name__)
+
 
 class AuthService:
     def __init__(self, user_repo: UserRepository):
@@ -22,13 +26,33 @@ class AuthService:
             raise AuthenticationError()
         if not verify_password(password, user.hashed_password):
             raise AuthenticationError()
+        logger.info(
+            "User authenticated",
+            extra={
+                "user_id": str(user.id),
+            },
+        )
         return user
 
     async def login(self, email: str, password: str) -> str:
         user = await self.authenticate(email, password)
+        logger.info(
+            "User logged in",
+            extra={
+                "user_id": str(user.id),
+            },
+        )
         return create_access_token({"sub": str(user.id)})
 
     async def register(self, data: UserRegisterSchema) -> User:
+
+        logger.info(
+            "User registration started",
+            extra={
+                "email": data.email,
+            },
+        )
+
         existing = await self.user_repo.get_by_email(data.email)
         if existing:
             raise UserAlreadyExistsError()
@@ -37,5 +61,13 @@ class AuthService:
             email=data.email,
             username=data.username,
             hashed_password=get_password_hash(data.password),
+        )
+
+        logger.info(
+            "User registration completed",
+            extra={
+                "email": data.email,
+                "user_id": str(user.id),
+            },
         )
         return await self.user_repo.add(user)
