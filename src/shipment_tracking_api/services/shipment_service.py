@@ -34,24 +34,26 @@ class ShipmentService:
         cache_key = CacheKeys.user_shipments(user_id)
         cached_shipments = await self.cache.get(cache_key)
         if cached_shipments is not None:
-            return [
+            source = "cache"
+            shipments_read = [
                 ShipmentReadSchema.model_validate(shipment)
                 for shipment in cached_shipments
             ]
+        else:
+            source = "database"
+            shipments = await self.shipment_repo.get_all_shipments(user_id=user_id)
+            shipments_read = [
+                ShipmentReadSchema.model_validate(shipment) for shipment in shipments
+            ]
 
-        shipments = await self.shipment_repo.get_all_shipments(user_id=user_id)
-        shipments_read = [
-            ShipmentReadSchema.model_validate(shipment) for shipment in shipments
-        ]
-        shipments_for_cache = [
-            shipment.model_dump(mode="json") for shipment in shipments_read
-        ]
-        await self.cache.set(cache_key, shipments_for_cache)
+            shipments_for_cache = [
+                shipment.model_dump(mode="json") for shipment in shipments_read
+            ]
+            await self.cache.set(cache_key, shipments_for_cache)
+
         logger.info(
             "User got all shipments",
-            extra={
-                "user_id": str(user_id),
-            },
+            extra={"user_id": str(user_id), "source": source},
         )
         return shipments_read
 
@@ -65,24 +67,32 @@ class ShipmentService:
                 "shipment_id": str(shipment_id),
             },
         )
+
         cache_key = CacheKeys.shipment(shipment_id)
         cached_shipment = await self.cache.get(cache_key)
-        if cached_shipment is not None:
-            return ShipmentReadSchema.model_validate(cached_shipment)
 
-        shipment = await self.shipment_repo.get_shipment_by_id(
-            shipment_id=shipment_id, user_id=user_id
-        )
-        if shipment is None:
-            raise ShipmentNotFoundError(shipment_id)
-        shipment_read = ShipmentReadSchema.model_validate(shipment)
-        shipment_for_cache = shipment_read.model_dump(mode="json")
-        await self.cache.set(cache_key, shipment_for_cache)
+        if cached_shipment is not None:
+            source = "cache"
+            shipment_read = ShipmentReadSchema.model_validate(cached_shipment)
+        else:
+            source = "database"
+            shipment = await self.shipment_repo.get_shipment_by_id(
+                shipment_id=shipment_id,
+                user_id=user_id,
+            )
+            if shipment is None:
+                raise ShipmentNotFoundError(shipment_id)
+
+            shipment_read = ShipmentReadSchema.model_validate(shipment)
+            shipment_for_cache = shipment_read.model_dump(mode="json")
+            await self.cache.set(cache_key, shipment_for_cache)
+
         logger.info(
             "User got a shipment",
             extra={
                 "user_id": str(user_id),
                 "shipment_id": str(shipment_id),
+                "source": source,
             },
         )
         return shipment_read
