@@ -1,7 +1,9 @@
+import logging
 from email.message import EmailMessage
 
 from shipment_tracking_api.infrastructure.tasks.celery_app import celery
 
+logger = logging.getLogger(__name__)
 
 def send_notification_mail_template(shipment: dict, email_to: str):
     email = EmailMessage()
@@ -25,6 +27,7 @@ def send_notification_mail_template(shipment: dict, email_to: str):
 @celery.task(name="send_notification_about_status")
 def send_notification_about_status(shipment: dict, email_to: str):
     msg_content = send_notification_mail_template(shipment, email_to)
+    logger.info("Sending a message to %s", email_to)
     print(
         f"Mail for {email_to}: (new status: {shipment['status']}, tracking number: {shipment['tracking_number']})"
     )
