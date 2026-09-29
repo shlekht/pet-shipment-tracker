@@ -13,6 +13,9 @@ dependencies = [
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
     "celery>=5.6.3",
+    "factory-boy>=3.3.3",
+    "faker>=40.39.0",
+    "fakeredis>=2.38.0",
     "fastapi[standard]>=0.141.1",
     "flower>=2.1.0",
     "gunicorn>=26.2.0",
@@ -31,7 +34,19 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
 ]
 
 [tool.fastapi]
 entrypoint = "src.shipment_tracking_api.main:app"
+
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-ra -q --strict-markers"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "unit: unit tests",
+    "integration: integration tests",
+]

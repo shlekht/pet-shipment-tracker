@@ -37,3 +37,7 @@ class RedisCacheBackend:
 
     async def delete(self, key: str) -> None:
         await self._redis.delete(key)
+
+    # Для тестов
+    async def flushdb(self) -> None:
+        await self._redis.flushdb()

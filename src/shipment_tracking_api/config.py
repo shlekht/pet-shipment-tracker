@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     REDIS_URL: str
     BROKER_REDIS_URL: str
+    TEST_REDIS_URL: str
     CACHE_TTL_SECONDS: int = 300 
 
     RMQ_URL: str
@@ -40,6 +41,22 @@ class Settings(BaseSettings):
                 host=self.DB_HOST,
                 port=self.DB_PORT,
                 path=self.DB_NAME,
+            )
+        return self
+
+
+    
+    TEST_DATABASE_URL: PostgresDsn | None = None
+    @model_validator(mode="after")
+    def assemble_test_db_connection(self) -> Settings:
+        if not self.TEST_DATABASE_URL:
+            self.TEST_DATABASE_URL = PostgresDsn.build(
+                scheme="postgresql+asyncpg",  
+                username=self.DB_USER,
+                password=self.DB_PASSWORD,
+                host=self.DB_HOST,
+                port=self.DB_PORT,
+                path="test_db"
             )
         return self
 
