@@ -1,5 +1,9 @@
+import logging
+
 from fastapi import Request, status
 from fastapi.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 
 class ShipmentNotFoundError(Exception):
@@ -15,7 +19,11 @@ class ShipmentTrackingNumberAlreadyExists(Exception):
 async def handle_shipment_not_found_error(
     request: Request, exc: ShipmentNotFoundError
 ) -> JSONResponse:
-    # logging here later
+    body = await request.json()
+    logger.info(  # ожидаемое поведение, поэтому info, а не warning/error
+        "Shipment not found: shipment_id=%s",
+        body.get("shipment_id"),
+    )
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
         content={"message": exc.message},
@@ -25,7 +33,12 @@ async def handle_shipment_not_found_error(
 async def handle_shipment_tracking_number_already_exists_error(
     request: Request, exc: ShipmentNotFoundError
 ) -> JSONResponse:
-    # logging here later
+    body = await request.json()
+    logger.info(  # ожидаемое поведение, поэтому info, а не warning/error
+        "Shipment adding failure, tracking number %s already exists, shipment_id=%s",
+        body.get("tracking_number"),
+        body.get("shipment_id"),
+    )
     return JSONResponse(
         status_code=status.HTTP_409_CONFLICT,
         content={"message": exc.message},
